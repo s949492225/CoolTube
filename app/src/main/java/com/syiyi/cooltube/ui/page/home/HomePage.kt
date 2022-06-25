@@ -13,8 +13,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.syiyi.cooltube.ui.view.FeedCard
-import com.syiyi.cooltube.ui.view.StatusBox
+import com.syiyi.cooltube.local.LocalNavController
+import com.syiyi.cooltube.ui.component.FeedCard
+import com.syiyi.cooltube.ui.component.StatusBox
 import com.syiyi.cooltube.util.RefreshState
 
 @Composable
@@ -23,7 +24,9 @@ fun HomePage() {
     val homeViewModel: HomeViewModel = hiltViewModel()
     val homeState by homeViewModel.homeState.collectAsState()
 
-    Surface(modifier = Modifier.padding(16.dp)) {
+    val navController = LocalNavController.current
+
+    Surface(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 0.dp)) {
 
         if (homeState.refresh == RefreshState.INIT
             || homeState.refresh == RefreshState.REFRESH_ERROR
@@ -42,7 +45,16 @@ fun HomePage() {
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     items(items = homeState.data ?: mutableListOf()) { item ->
-                        FeedCard(item)
+                        FeedCard(item) {
+                            navController.navigate(
+                                "player?id=${
+                                    item.url!!.replace(
+                                        "/watch?v=",
+                                        ""
+                                    )
+                                }"
+                            )
+                        }
                     }
                 }
             }

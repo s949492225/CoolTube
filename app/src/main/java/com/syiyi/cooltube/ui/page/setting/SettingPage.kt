@@ -11,8 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.syiyi.cooltube.R
 import com.syiyi.cooltube.ui.page.GlobalViewModel
-import com.syiyi.cooltube.ui.view.OriginalItem
-import com.syiyi.cooltube.ui.view.WideButton
+import com.syiyi.cooltube.ui.component.OriginalItem
+import com.syiyi.cooltube.ui.component.WideButton
 import com.syiyi.cooltube.util.toast
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach

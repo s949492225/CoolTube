@@ -1,4 +1,4 @@
-package com.syiyi.cooltube.ui.view
+package com.syiyi.cooltube.ui.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

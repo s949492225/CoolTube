@@ -1,6 +1,7 @@
-package com.syiyi.cooltube.ui.view
+package com.syiyi.cooltube.ui.component
 
 import android.text.format.DateUtils
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
@@ -17,9 +18,9 @@ import com.syiyi.cooltube.model.StreamItem
 import com.syiyi.cooltube.util.formatShort
 
 @Composable
-fun FeedCard(item: StreamItem) {
+fun FeedCard(item: StreamItem, click: () -> Unit = { }) {
     Column(Modifier.fillMaxWidth()) {
-        Card {
+        Card(modifier = Modifier.clickable { click.invoke() }) {
             AsyncImage(
                 model = item.thumbnail,
                 contentDescription = null,

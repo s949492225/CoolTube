@@ -16,9 +16,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.syiyi.cooltube.ui.page.GlobalViewModel
-import com.syiyi.cooltube.ui.view.ChannelItem
-import com.syiyi.cooltube.ui.view.FeedCard
-import com.syiyi.cooltube.ui.view.StatusBox
+import com.syiyi.cooltube.ui.component.ChannelItem
+import com.syiyi.cooltube.ui.component.FeedCard
+import com.syiyi.cooltube.ui.component.StatusBox
 import com.syiyi.cooltube.util.RefreshState
 
 @Composable
@@ -37,7 +37,7 @@ fun SubscriptionPage(
         subscriptionVM.fetchChannel(token!!)
     }
 
-    Surface(modifier = Modifier.padding(16.dp)) {
+    Surface(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 0.dp)) {
 
         if (mainState.refreshState == RefreshState.INIT
             || mainState.refreshState == RefreshState.REFRESH_ERROR

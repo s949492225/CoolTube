@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.syiyi.cooltube.R
 import com.syiyi.cooltube.local.LocalNavController
 import com.syiyi.cooltube.ui.page.home.HomePage
+import com.syiyi.cooltube.ui.page.library.LibraryPage
 import com.syiyi.cooltube.ui.page.subscription.SubscriptionPage
 
 sealed class IndexPageFragment(
@@ -88,7 +89,7 @@ fun IndexPage() {
         ) {
             composable(IndexPageFragment.Home.route) { HomePage() }
             composable(IndexPageFragment.Attention.route) { SubscriptionPage() }
-            composable(IndexPageFragment.Library.route) { MinePage() }
+            composable(IndexPageFragment.Library.route) { LibraryPage() }
         }
     }
 }
