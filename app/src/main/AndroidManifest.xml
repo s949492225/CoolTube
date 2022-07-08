@@ -19,17 +19,10 @@
 
         <activity
             android:name=".activity.MainActivity"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:exported="true"
-            android:hardwareAccelerated="true"
-            android:launchMode="standard"
-            android:resizeableActivity="true"
-            android:supportsPictureInPicture="true"
-            android:theme="@style/Theme.CoolTube"
-            android:windowSoftInputMode="adjustResize">
+            android:supportsPictureInPicture="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -16,11 +16,10 @@
 -->
 <resources>
 
-    <!-- Our dark theme -->
-    <style name="Theme.CoolTube" parent="Platform.Theme.Nia">
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryDark">@color/purple_700</item>
-        <item name="colorAccent">@color/teal_200</item>
+    <style name="Platform.Theme.Nia" parent="Theme.Material3.DayNight">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
     </style>
-
 </resources>

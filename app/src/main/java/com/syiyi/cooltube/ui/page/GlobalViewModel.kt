@@ -12,8 +12,10 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class GlobalViewModel @Inject constructor(application: Application) :
-    AndroidViewModel(application) {
+class GlobalViewModel @Inject constructor(
+    context: Application
+) :
+    AndroidViewModel(context) {
 
     var tokenFlow = MutableStateFlow<String?>(null)
 
