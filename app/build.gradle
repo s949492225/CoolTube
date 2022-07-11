@@ -57,6 +57,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         freeCompilerArgs += "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
         freeCompilerArgs += "-opt-in=coil.annotation.ExperimentalCoilApi"
         freeCompilerArgs += "-opt-in=androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi"
+        freeCompilerArgs += "-opt-in=kotlinx.coroutines.FlowPreview"
     }
 }
 

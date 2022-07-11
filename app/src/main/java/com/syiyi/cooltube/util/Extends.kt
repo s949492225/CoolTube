@@ -1,6 +1,8 @@
 package com.syiyi.cooltube.util
 
 import androidx.core.net.toUri
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory
 import com.google.android.exoplayer2.source.MediaSource
@@ -9,6 +11,7 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
 import com.syiyi.cooltube.model.PipedStream
+import com.syiyi.cooltube.model.StreamItem
 import com.syiyi.cooltube.model.Streams
 
 fun Streams.mediaSources(): List<Pair<String, MediaSource>> {
@@ -70,4 +73,11 @@ fun Streams.mediaSources(): List<Pair<String, MediaSource>> {
             Pair(it.quality ?: "未知", MergingMediaSource(videoSource, audioSource))
         }
     return ret
+}
+
+fun  String.toObjet(): List<StreamItem> {
+    return ObjectMapper().readValue(
+        this,
+        object : TypeReference<List<StreamItem>>() {}
+    )
 }
