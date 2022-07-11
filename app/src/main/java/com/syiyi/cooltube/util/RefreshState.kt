@@ -6,6 +6,7 @@ enum class RefreshState {
     LOCAL_SUCCESS,
     REFRESH,
     PULL_REFRESH,
+    PULL_ERROR,
     ERROR,
     EMPTY,
     SUCCESS,

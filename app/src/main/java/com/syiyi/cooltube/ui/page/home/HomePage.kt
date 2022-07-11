@@ -37,7 +37,7 @@ fun HomePage() {
     val context = LocalContext.current
 
     fun refresh() {
-        homeVM.fireIntent(HomeIntent.Refresh)
+        homeVM.dispatch(HomeIntent.Refresh)
     }
 
     fun handleEffect(homeEffect: HomeEffect) {
@@ -49,6 +49,7 @@ fun HomePage() {
     LaunchedEffect(Unit) {
         homeVM.effectFlow.onEach { handleEffect(it) }.collect()
     }
+
     Surface(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 0.dp)) {
         SwipeRefresh(
             state = rememberSwipeRefreshState((homeState.rs == RefreshState.PULL_REFRESH)),

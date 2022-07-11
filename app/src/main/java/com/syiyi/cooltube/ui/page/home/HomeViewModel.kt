@@ -9,6 +9,7 @@ import com.syiyi.cooltube.model.StreamItem
 import com.syiyi.cooltube.util.RefreshState
 import com.syiyi.cooltube.util.toObjet
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import me.rerere.compose_setting.preference.mmkvPreference
@@ -32,24 +33,25 @@ data class HomeUiState(
 @HiltViewModel
 class HomeViewModel @Inject constructor() : ViewModel() {
 
-    private val intendFlow = MutableSharedFlow<HomeIntent>(replay = 2)
+    private val intendFlow = Channel<HomeIntent>()
     val effectFlow = MutableSharedFlow<HomeEffect>()
 
     var homeState: StateFlow<HomeUiState> = intendFlow
+        .receiveAsFlow()
         .dispatch()
         .flattenConcat()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
-    init {
-        fireIntent(HomeIntent.LoadLocal, HomeIntent.Refresh)
-    }
-
-    fun fireIntent(vararg intents: HomeIntent) {
+    fun dispatch(vararg intents: HomeIntent) {
         viewModelScope.launch {
             intents.forEach {
-                intendFlow.emit(it)
+                intendFlow.send(it)
             }
         }
+    }
+
+    init {
+        dispatch(HomeIntent.LoadLocal, HomeIntent.Refresh)
     }
 
     private fun Flow<HomeIntent>.dispatch(): Flow<Flow<HomeUiState>> = map {
@@ -75,8 +77,15 @@ class HomeViewModel @Inject constructor() : ViewModel() {
             .catch { error ->
                 val message = error.message ?: "网络错误"
                 if (homeState.value.data.isEmpty()) {
-                    emit(HomeUiState(rs = RefreshState.ERROR, error = message))
+                    emit(HomeUiState(rs = RefreshState.REFRESH, error = message))
                 } else {
+                    emit(
+                        HomeUiState(
+                            data = homeState.value.data,
+                            rs = RefreshState.PULL_ERROR,
+                            error = message
+                        )
+                    )
                     effectFlow.emit(HomeEffect.Toast(message))
                 }
             }
