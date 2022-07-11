@@ -2,10 +2,14 @@ package com.syiyi.cooltube.util
 
 enum class RefreshState {
     INIT,
-    REFRESH_FIRST,
+    LOCAL_EMPTY,
+    LOCAL_SUCCESS,
     REFRESH,
-    REFRESH_ERROR,
-    READY,
+    PULL_REFRESH,
+    ERROR,
+    EMPTY,
+    SUCCESS,
     LOAD_MORE,
+    LOAD_MORE_EMPTY,
     LOAD_MORE_ERROR,
 }

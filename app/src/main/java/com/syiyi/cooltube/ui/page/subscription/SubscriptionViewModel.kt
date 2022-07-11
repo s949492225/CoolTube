@@ -45,19 +45,19 @@ class SubscriptionViewModel @Inject constructor() : ViewModel() {
             mainStateFlow.value.data = getFeedCacheData() ?: listOf()
             val data = mainStateFlow.value.data
             try {
-                val refreshState = if (data.isNullOrEmpty()) {
-                    RefreshState.REFRESH_FIRST
-                } else {
+                val rs = if (data.isNullOrEmpty()) {
                     RefreshState.REFRESH
+                } else {
+                    RefreshState.PULL_REFRESH
                 }
-                mainStateFlow.value = mainStateFlow.value.copy(refreshState = refreshState)
+                mainStateFlow.value = mainStateFlow.value.copy(refreshState = rs)
                 val trendingList = RetrofitInstance.api.getFeed(token)
                 mainStateFlow.value =
-                    SubscriptionState(trendingList, refreshState = RefreshState.READY)
+                    SubscriptionState(trendingList, refreshState = RefreshState.SUCCESS)
                 cacheFeedData(trendingList)
             } catch (e: Exception) {
                 mainStateFlow.value =
-                    SubscriptionState(error = e.message, refreshState = RefreshState.REFRESH_ERROR)
+                    SubscriptionState(error = e.message, refreshState = RefreshState.ERROR)
             }
         }
     }

@@ -22,6 +22,7 @@ import com.syiyi.cooltube.ui.component.Empty
 import com.syiyi.cooltube.ui.component.Error
 import com.syiyi.cooltube.ui.component.FeedCard
 import com.syiyi.cooltube.ui.component.Loading
+import com.syiyi.cooltube.util.RefreshState
 import com.syiyi.cooltube.util.toast
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -30,7 +31,7 @@ import kotlinx.coroutines.flow.onEach
 fun HomePage() {
 
     val homeVM: HomeViewModel = hiltViewModel()
-    val homeState by homeVM.homeUIState.collectAsState()
+    val homeState by homeVM.homeState.collectAsState()
 
     val navController = LocalNavController.current
     val context = LocalContext.current
@@ -46,21 +47,20 @@ fun HomePage() {
     }
 
     LaunchedEffect(Unit) {
-        homeVM.effectFow.onEach { handleEffect(it) }.collect()
+        homeVM.effectFlow.onEach { handleEffect(it) }.collect()
     }
-
     Surface(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 0.dp)) {
         SwipeRefresh(
-            state = rememberSwipeRefreshState((homeState is HomeUiState.PullRefresh)),
+            state = rememberSwipeRefreshState((homeState.rs == RefreshState.PULL_REFRESH)),
             onRefresh = { refresh() },
         ) {
-            when (homeState) {
-                is HomeUiState.Refresh -> Loading()
-                is HomeUiState.LocalSuccess -> Content(homeState, navController)
-                is HomeUiState.Success -> Content(homeState, navController)
-                is HomeUiState.PullRefresh -> Content(homeState, navController)
-                is HomeUiState.Error -> Error(homeState.message()) { refresh() }
-                is HomeUiState.Empty -> Empty { refresh() }
+            when (homeState.rs) {
+                RefreshState.REFRESH -> Loading()
+                RefreshState.LOCAL_SUCCESS -> Content(homeState, navController)
+                RefreshState.SUCCESS -> Content(homeState, navController)
+                RefreshState.PULL_REFRESH -> Content(homeState, navController)
+                RefreshState.ERROR -> Error(homeState.error) { refresh() }
+                RefreshState.EMPTY -> Empty { refresh() }
                 else -> {}
             }
         }
@@ -69,14 +69,14 @@ fun HomePage() {
 
 @Composable
 private fun Content(
-    homeUIState: HomeUiState,
+    homeState: HomeUiState,
     navController: NavController
 ) {
     LazyColumn(
         state = rememberLazyListState(),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        items(items = homeUIState.data()) { item ->
+        items(items = homeState.data, key = { item -> item.title ?: "" }) { item ->
             FeedCard(item) {
                 navController.navigate(
                     "player?id=${

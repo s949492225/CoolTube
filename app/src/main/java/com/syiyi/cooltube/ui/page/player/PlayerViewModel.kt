@@ -25,14 +25,14 @@ class PlayerViewModel @Inject constructor() : ViewModel() {
     fun fetchSteam(id: String) {
         viewModelScope.launch {
             try {
-                mainState.value = mainState.value.copy(refresh = RefreshState.REFRESH)
+                mainState.value = mainState.value.copy(refresh = RefreshState.PULL_REFRESH)
                 val steam = RetrofitInstance.api.getStreams(id)
                 mainState.value = MainState(
                     steam,
-                    refresh = RefreshState.READY
+                    refresh = RefreshState.SUCCESS
                 )
             } catch (e: Exception) {
-                mainState.value = MainState(error = e.message, refresh = RefreshState.REFRESH_ERROR)
+                mainState.value = MainState(error = e.message, refresh = RefreshState.ERROR)
             }
         }
     }

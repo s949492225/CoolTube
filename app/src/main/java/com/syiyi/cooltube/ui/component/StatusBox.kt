@@ -23,17 +23,17 @@ fun StatusBox(
         modifier = Modifier
             .fillMaxSize()
             .clickable {
-                if (refreshState == RefreshState.REFRESH_ERROR) {
+                if (refreshState == RefreshState.ERROR) {
                     retry.invoke()
                 }
             },
         contentAlignment = Alignment.Center,
     ) {
         when (refreshState) {
-            RefreshState.REFRESH_FIRST -> {
+            RefreshState.REFRESH -> {
                 CircularProgressIndicator()
             }
-            RefreshState.REFRESH_ERROR -> {
+            RefreshState.ERROR -> {
                 Column {
                     Text(
                         text = error ?: "网络错误",

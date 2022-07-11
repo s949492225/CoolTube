@@ -40,13 +40,13 @@ fun SubscriptionPage(
     Surface(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 0.dp)) {
 
         if (mainState.refreshState == RefreshState.INIT
-            || mainState.refreshState == RefreshState.REFRESH_ERROR
+            || mainState.refreshState == RefreshState.ERROR
         ) {
             fetch()
         }
 
         SwipeRefresh(
-            state = rememberSwipeRefreshState((mainState.refreshState == RefreshState.REFRESH)),
+            state = rememberSwipeRefreshState((mainState.refreshState == RefreshState.PULL_REFRESH)),
             onRefresh = ::fetch,
         ) {
             StatusBox(mainState.refreshState, mainState.error, ::fetch)

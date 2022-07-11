@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.syiyi.cooltube.api.RetrofitInstance
 import com.syiyi.cooltube.const.HOME_DATA
 import com.syiyi.cooltube.model.StreamItem
+import com.syiyi.cooltube.util.RefreshState
 import com.syiyi.cooltube.util.toObjet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -22,43 +23,22 @@ sealed interface HomeEffect {
     class Toast(val message: String) : HomeEffect
 }
 
-open class HomeUiState(open val data: List<StreamItem>? = null) {
-    object Init : HomeUiState()
-    object LocalEmpty : HomeUiState()
-    data class LocalSuccess(override val data: List<StreamItem>) : HomeUiState(data)
-    object Refresh : HomeUiState()
-    data class PullRefresh(override val data: List<StreamItem>) : HomeUiState(data)
-    data class Success(override val data: List<StreamItem>) : HomeUiState(data)
-    data class Error(val message: String) : HomeUiState()
-    
-    object Empty : HomeUiState()
-
-    fun data(): List<StreamItem> {
-        return when (this) {
-            is LocalSuccess -> this.data
-            is Success -> this.data
-            else -> emptyList()
-        }
-    }
-
-    fun message(): String? {
-        return when (this) {
-            is Error -> this.message
-            else -> null
-        }
-    }
-}
+data class HomeUiState(
+    val data: List<StreamItem> = emptyList(),
+    val rs: RefreshState = RefreshState.INIT,
+    val error: String = "网络错误!"
+)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor() : ViewModel() {
 
     private val intendFlow = MutableSharedFlow<HomeIntent>(replay = 2)
-    val effectFow = MutableSharedFlow<HomeEffect>()
+    val effectFlow = MutableSharedFlow<HomeEffect>()
 
-    var homeUIState: StateFlow<HomeUiState> = intendFlow
+    var homeState: StateFlow<HomeUiState> = intendFlow
         .dispatch()
         .flattenConcat()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState.Init)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     init {
         fireIntent(HomeIntent.LoadLocal, HomeIntent.Refresh)
@@ -82,22 +62,22 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private suspend fun remoteFlow(): Flow<HomeUiState> {
         return flow { emit(RetrofitInstance.api.getTrending("US")) }
             .map { it.toHomeState() }
-            .onEach { if (it is HomeUiState.Success) it.saveCacheData() }
+            .onEach { if (it.rs == RefreshState.SUCCESS) it.saveCacheData() }
             .onStart {
-                homeUIState.value.data.apply {
+                homeState.value.data.apply {
                     if (isNullOrEmpty()) {
-                        emit(HomeUiState.Refresh)
+                        emit(HomeUiState(rs = RefreshState.REFRESH))
                     } else {
-                        emit(HomeUiState.PullRefresh(this))
+                        emit(homeState.value.copy(rs = RefreshState.PULL_REFRESH))
                     }
                 }
             }
             .catch { error ->
                 val message = error.message ?: "网络错误"
-                if (homeUIState.value.data.isNullOrEmpty()) {
-                    emit(HomeUiState.Error(message))
+                if (homeState.value.data.isEmpty()) {
+                    emit(HomeUiState(rs = RefreshState.ERROR, error = message))
                 } else {
-                    effectFow.emit(HomeEffect.Toast(""))
+                    effectFlow.emit(HomeEffect.Toast(message))
                 }
             }
     }
@@ -106,20 +86,25 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         return flow {
             val localData = mmkvPreference.getString(HOME_DATA, null)
             if (localData == null) {
-                emit(HomeUiState.LocalEmpty)
+                emit(HomeUiState(rs = RefreshState.LOCAL_EMPTY))
             } else {
-                emit(HomeUiState.LocalSuccess(localData.toObjet()))
+                emit(
+                    HomeUiState(
+                        rs = RefreshState.LOCAL_SUCCESS,
+                        data = localData.toObjet()
+                    )
+                )
             }
         }
     }
 
     private fun List<StreamItem>?.toHomeState(): HomeUiState {
         return if (this.isNullOrEmpty()) {
-            HomeUiState.Empty
-        } else HomeUiState.Success(this)
+            HomeUiState(rs = RefreshState.EMPTY)
+        } else HomeUiState(rs = RefreshState.SUCCESS, data = this)
     }
 
-    private fun HomeUiState.Success.saveCacheData() {
+    private fun HomeUiState.saveCacheData() {
         mmkvPreference.putString(HOME_DATA, ObjectMapper().writeValueAsString(this.data))
     }
 }
