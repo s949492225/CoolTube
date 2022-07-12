@@ -24,14 +24,12 @@ import com.syiyi.cooltube.ui.component.FeedCard
 import com.syiyi.cooltube.ui.component.Loading
 import com.syiyi.cooltube.util.RefreshState
 import com.syiyi.cooltube.util.toast
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 
 @Composable
 fun HomePage() {
 
     val homeVM: HomeViewModel = hiltViewModel()
-    val homeState by homeVM.homeState.collectAsState()
+    val homeState by homeVM.state.collectAsState()
 
     val navController = LocalNavController.current
     val context = LocalContext.current
@@ -40,14 +38,12 @@ fun HomePage() {
         homeVM.dispatch(HomeIntent.Refresh)
     }
 
-    fun handleEffect(homeEffect: HomeEffect) {
-        when (homeEffect) {
-            is HomeEffect.Toast -> context.toast(homeEffect.message)
-        }
-    }
-
     LaunchedEffect(Unit) {
-        homeVM.effectFlow.onEach { handleEffect(it) }.collect()
+        homeVM.onEffect {
+            when (it) {
+                is HomeEffect.Toast -> context.toast(it.message)
+            }
+        }
     }
 
     Surface(modifier = Modifier.padding(16.dp, 0.dp, 16.dp, 0.dp)) {
